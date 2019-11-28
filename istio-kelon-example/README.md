@@ -7,11 +7,11 @@ This example will help, deploying Istio, Prometheus, Grafana and Kelon to test K
 ```sh
 helm repo add istio https://storage.googleapis.com/istio-release/releases/1.4.0/charts/
 
-kubectl apply -f istio/istio-ns.yaml
+kubectl apply -f ./istio-ns.yaml
 
-helm install -f istio/istio-init-values.yaml --namespace istio-system istio-init  istio/istio-init
+helm install -f ./istio-init-values.yaml --namespace istio-system istio-init  istio/istio-init
 
-helm install -f istio/istio-values.yaml --namespace istio-system istio istio/istio
+helm install -f ./istio-values.yaml --namespace istio-system istio istio/istio
 
 kubectl -n istio-system port-forward svc/grafana 3000:3000
 ```
