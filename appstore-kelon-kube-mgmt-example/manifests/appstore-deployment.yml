@@ -1,0 +1,40 @@
+# Deploy OPA and kube-mgmt.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appstore
+  namespace: appstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appstore
+  template:
+    metadata:
+      labels:
+        app: appstore
+    spec:
+      containers:
+        - name: appstore
+          image: kelonio/spring-vue-appstore:latest
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: appstore-config
+---
+# Add service that exposes OPA
+apiVersion: v1
+kind: Service
+metadata:
+  name: appstore-service
+  namespace: appstore
+  labels:
+    name: appstore-service
+spec:
+  selector:
+    app: appstore
+  ports:
+  - port: 8181
+    protocol: TCP

@@ -1,0 +1,402 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: call-operands
+  namespace: kelon
+data:
+  mongo.yml: |
+    call-operands:
+
+      # Relational operands
+      - op: eq
+        args: 2
+        mapping: "$0: $1"
+      - op: equal
+        args: 2
+        mapping: "$0: $1"
+      - op: neq
+        args: 2
+        mapping: "$0: { \"$ne\": $1 }"
+      - op: lt
+        args: 2
+        mapping: "$0: { \"$lt\": $1 }"
+      - op: gt
+        args: 2
+        mapping: "$0: { \"$gt\": $1 }"
+      - op: lte
+        args: 2
+        mapping: "$0: { \"$lte\": $1 }"
+      - op: gte
+        args: 2
+        mapping: "$0: { \"$gte\": $1 }"
+  mysql.yml: |-
+    call-operands:
+
+      # Mathematical operands
+      - op: plus
+        args: 2
+        mapping: "$0 + $1"
+      - op: minus
+        args: 2
+        mapping: "$0 - $1"
+      - op: mul
+        args: 2
+        mapping: "$1 * $0"
+      - op: div
+        args: 2
+        mapping: "$0 / $1"
+      - op: rem
+        args: 2
+        mapping: "$0 % $1"
+
+      # Relational operands
+      - op: eq
+        args: 2
+        mapping: "$0 = $1"
+      - op: equal
+        args: 2
+        mapping: "$0 = $1"
+      - op: neq
+        args: 2
+        mapping: "$0 != $1"
+      - op: lt
+        args: 2
+        mapping: "$0 < $1"
+      - op: gt
+        args: 2
+        mapping: "$0 > $1"
+      - op: lte
+        args: 2
+        mapping: "$0 <= $1"
+      - op: gte
+        args: 2
+        mapping: "$0 >= $1"
+
+      # Mathematical Functions
+      - op: abs
+        args: 1
+        mapping: "ABS($0)"
+  postgres.yml: |-
+    call-operands:
+
+      # Mathematical operands
+      - op: plus
+        args: 2
+        mapping: "$0 + $1"
+      - op: minus
+        args: 2
+        mapping: "$0 - $1"
+      - op: mul
+        args: 2
+        mapping: "$1 * $0"
+      - op: div
+        args: 2
+        mapping: "$0 / $1"
+      - op: rem
+        args: 2
+        mapping: "$0 % $1"
+
+      # Relational operands
+      - op: eq
+        args: 2
+        mapping: "$0 = $1"
+      - op: equal
+        args: 2
+        mapping: "$0 = $1"
+      - op: neq
+        args: 2
+        mapping: "$0 != $1"
+      - op: lt
+        args: 2
+        mapping: "$0 < $1"
+      - op: gt
+        args: 2
+        mapping: "$0 > $1"
+      - op: lte
+        args: 2
+        mapping: "$0 <= $1"
+      - op: gte
+        args: 2
+        mapping: "$0 >= $1"
+
+      # Mathematical Functions
+      - op: abs
+        args: 1
+        mapping: "ABS($0)"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-postgres
+  namespace: appstore
+data:
+  Init-Postgres.sql: "DROP SCHEMA IF EXISTS \"appstore\";\nCREATE SCHEMA \"appstore\";"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kelon-configs
+  namespace: kelon
+data:
+  api.yml: |
+    apis:
+      # Route all requests starting with /api/mysql to mysql database
+      - path-prefix: /api/mysql
+        datastore: mysql
+        mappings:
+          - path: /apps/.*                   # Matches [GET,POST,PUT,DELETE,PATCH] /api/mysql/apps/.*
+            package: applications.mysql
+          - path: /apps/[\d]+               # Matches [GET,POST,PUT,DELETE,PATCH] /api/mysql/apps/[\d]+
+            package: applications.mysql
+          - path: /apps/[\d]+               # Only matches GET /api/mysql/apps/[\d]+
+            package: applications.mysql
+            methods:
+              - GET
+          - path: /.*
+            package: test
+      # Route all requests starting with /api/mongo to MongoDB
+      - path-prefix: /api/mongo
+        datastore: mongo
+        mappings:
+          - path: /apps/.*
+            package: applications.mongo
+      # All other requests are routed to postgres
+      - path-prefix: /api/.*?
+        datastore: pg
+        mappings:
+          - path: /apps/.*
+            package: applications.pg
+  datastore.yml: |-
+    # Datastores to connect to
+    datastores:
+      mysql:
+        type: mysql
+        connection:
+          host: mysql
+          port: 3306
+          database: appstore
+          user: You
+          password: SuperSecure
+
+      pg:
+        type: postgres
+        connection:
+          host: postgres-postgresql
+          port: 5432
+          database: appstore
+          user: You
+          password: SuperSecure
+
+      mongo:
+        type: mongo
+        connection:
+          host: mongo-mongodb
+          port: 27017
+          database: appstore
+          user: You
+          password: SuperSecure
+
+    # Entity-Schemas define the structure of the entities of one schema inside a datastore
+    entity_schemas:
+
+      mysql:                                # Target datastore
+        appstore:                           # Target schema
+          entities:                         # List of all entities of the schema
+            - name: users
+            - name: app_rights
+            - name: apps
+            - name: app_tags
+            - name: tags
+
+      pg:
+        appstore:
+          entities:
+            - name: users
+            - name: app_rights
+            - name: apps
+            - name: app_tags
+            - name: tags
+
+      mongo:
+        appstore:
+          entities:
+            - name: users
+            - name: apps
+              entities:
+                - name: rights
+                  entities:
+                    - name: user
+                      alias: users
+  opa.yml: |
+    labels:
+      app: Kelon
+      region: europe-west3
+      environment: development
+
+    decision_logs:
+      console: true
+      reporting:
+        min_delay_seconds: 300
+        max_delay_seconds: 600
+
+    default_decision: /http/authz/allow
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kelon-policies
+  namespace: kelon
+data:
+  mongo_example.rego: |-
+    package applications.mongo
+
+    # Deny all by default
+    allow = false
+
+    # Path: GET /api/mongo/apps/:app_id
+    # Users with right 'OWNER' on app can access it always
+    allow = true {
+        input.method = "GET"
+        input.path = ["api1", "mongo", "apps", appId]
+
+        # This query fires against collection -> apps
+        data.mongo.apps[app].id = appId
+
+        # Nest elements
+        data.mongo.rights[right].id = app.id
+        data.mongo.users[user].id = right.id
+
+        # Query root
+        app.stars > 2
+
+        # Query nested
+        right.right = "OWNER"
+        user.name = input.user
+    }
+
+    # Path: GET /api/mongo/apps/:app_id
+    # All apps with 5 stars are public
+    allow = true {
+        some app, appId
+        input.method = "GET"
+        input.path = ["api", "mongo", "apps", appId]
+
+        # This query fires against collection -> apps
+        data.mongo.apps[app].stars = 5
+        app.id = appId
+    }
+
+    # Path: GET /api/mongo/apps/:app_id
+    # The first app is public
+    allow = true {
+        input.method = "GET"
+        input.path = ["api", "mongo", "apps", "1"]
+    }
+
+    # Path: GET <any>
+    # All users that are a friends of Kevin are allowed see everything
+    allow = true {
+        input.method = "GET"
+
+        # This query fires against collection -> users
+        data.mongo.users[user].name = input.user
+        user.friend = "Kevin"
+    }
+  mysql_example.rego: |-
+    package applications.mysql
+
+    # Deny all by default
+    allow = false
+
+    # Path: GET /api/mysql/apps/:app_id
+    # Users with right 'OWNER' on app can access it always
+    allow = true {
+        input.method = "GET"
+        input.path = ["api", "mysql", "apps", appId]
+
+        [appId, "OWNER"] = appRights[_]
+    }
+
+    # Path: GET /api/mysql/apps/:app_id
+    # All apps with 5 stars are public
+    allow = true {
+        some app, appId
+        input.method = "GET"
+        input.path = ["api", "mysql", "apps", appId]
+
+        data.mysql.apps[app].stars = 5
+        app.id = appId
+    }
+
+    # Path: GET /api/mysql/apps/:app_id
+    # The first app is public
+    allow = true {
+        input.method = "GET"
+        input.path = ["api", "mysql", "apps", "1"]
+    }
+
+    # Path: GET <any>
+    # All users that are a friends of Kevin are allowed see everything
+    allow = true {
+        input.method = "GET"
+
+        # Query
+        data.mysql.users[user].name = input.user
+        user.friend = "Kevin"
+    }
+
+    appRights[[appId, right]] {
+        data.mysql.users[u].name = input.user
+        right := data.mysql.app_rights[r].right
+        appId := r.app_id
+        u.id = r.user_id
+    }
+  pg_example.rego: |-
+    package applications.pg
+
+    # Deny all by default
+    allow = false
+
+    # Path: GET /api/pg/apps/:app_id
+    # Users with right 'OWNER' on app can access it always
+    allow = true {
+        input.method = "GET"
+        input.path = ["api", "pg", "apps", appId]
+
+        [appId, "OWNER"] = appRights[_]
+    }
+
+    # Path: GET /api/pg/apps/:app_id
+    # All apps with 5 stars are public
+    allow = true {
+        some app, appId
+        input.method = "GET"
+        input.path = ["api", "pg", "apps", appId]
+
+        data.pg.apps[app].stars = 5
+        app.id = appId
+    }
+
+    # Path: GET /api/pg/apps/:app_id
+    # The first app is public
+    allow = true {
+        input.method = "GET"
+        input.path = ["api", "pg", "apps", "1"]
+    }
+
+    # Path: GET <any>
+    # All users that are a friends of Kevin are allowed see everything
+    allow = true {
+        input.method = "GET"
+
+        # Query
+        data.pg.users[user].name = input.user
+        user.friend = "Kevin"
+    }
+
+    appRights[[appId, right]] {
+        data.pg.users[u].name = input.user
+        right := data.pg.app_rights[r].right
+        appId := r.app_id
+        u.id = r.user_id
+    }
