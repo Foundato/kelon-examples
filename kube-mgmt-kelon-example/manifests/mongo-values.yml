@@ -341,8 +341,8 @@ readinessProbe:
   successThreshold: 1
 
 # Define custom config map with init scripts
-initConfigMap: {name: "init-mongo"}
-#  name: "init-config-map"
+initConfigMap: 
+  name: init-mongo
 
 ## Entries for the MongoDB config file. For documentation of all options, see:
 ##   http://docs.mongodb.org/manual/reference/configuration-options/

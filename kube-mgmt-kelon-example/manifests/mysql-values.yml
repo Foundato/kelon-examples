@@ -133,11 +133,27 @@ configurationFiles: {}
 #    ssl-key=/ssl/server-key.pem
 
 # Custom mysql init SQL files used to initialize the database
-initializationFiles: {}
-#  first-db.sql: |-
-#    CREATE DATABASE IF NOT EXISTS first DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-#  second-db.sql: |-
-#    CREATE DATABASE IF NOT EXISTS second DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+initializationFiles: 
+  init.sql: |-
+    "-- Adminer 4.7.3 MySQL dump\n\nSET NAMES utf8;\nSET time_zone
+    = '+00:00';\nSET foreign_key_checks = 0;\nSET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';\n\nDROP
+    DATABASE IF EXISTS `appstore`;\nCREATE DATABASE `appstore` /*!40100 DEFAULT
+    CHARACTER SET latin1 */;\nUSE `appstore`;\n\nDROP TABLE IF EXISTS `apps`;\nCREATE
+    TABLE `apps` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `name` varchar(255)
+    NOT NULL,\n  `stars` tinyint(3) unsigned zerofill NOT NULL,\n  PRIMARY KEY (`id`)\n)
+    ENGINE=InnoDB DEFAULT CHARSET=latin1;\n\nINSERT INTO `apps` (`id`, `name`, `stars`)
+    VALUES\n(1,\t'First App for everyone',\t001),\n(2,\t'Arnold\\'s App',\t003),\n(3,\t'Famous
+    App',\t005);\n\nDROP TABLE IF EXISTS `app_rights`;\nCREATE TABLE `app_rights`
+    (\n  `app_id` int(11) NOT NULL,\n  `user_id` int(11) NOT NULL,\n  `right` varchar(255)
+    NOT NULL,\n  KEY `app_id` (`app_id`),\n  KEY `user_id` (`user_id`),\n  CONSTRAINT
+    `app_rights_ibfk_1` FOREIGN KEY (`app_id`) REFERENCES `apps` (`id`),\n  CONSTRAINT
+    `app_rights_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)\n) ENGINE=InnoDB
+    DEFAULT CHARSET=latin1;\n\nINSERT INTO `app_rights` (`app_id`, `user_id`, `right`)
+    VALUES\n(2,\t1,\t'OWNER');\n\nDROP TABLE IF EXISTS `users`;\nCREATE TABLE `users`
+    (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `name` varchar(255) NOT NULL,\n
+    \ `age` tinyint(4) DEFAULT NULL,\n  `friend` varchar(255) NOT NULL,\n  PRIMARY
+    KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1;\n\nINSERT INTO `users` (`id`,
+    `name`, `age`, `friend`) VALUES\n(1,\t'Arnold',\t72,\t'John Connor'),\n(2,\t'Kevin',\t21,\t'Kevin'),\n(3,\t'Anyone',\tNULL,\t'Anyone');"
 
 metrics:
   enabled: false

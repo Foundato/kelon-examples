@@ -131,18 +131,7 @@ metadata:
   namespace: kelon
 data:
   Init-Mongo.js: |-
-    db.createUser(
-        {
-            user   : "You",
-            pwd    : "SuperSecure",
-            roles  : [
-                {
-                    role  : "readWrite",
-                    db    : "appstore"
-                }
-            ]
-        }
-    );
+    db = db.getSiblingDB('appstore');
 
     db.apps.insertOne({id:2,name:"Arnold's App",stars:3,rights:{right:"OWNER",user:{id:1,name:"Arnold",age:72,friend:"John Connor"}}});
     db.apps.insertOne({id:1,name:"First App for everyone",stars:1});
@@ -151,32 +140,6 @@ data:
     db.users.insertOne({id:1,name:"Arnold",age:72,friend:"John Connor"});
     db.users.insertOne({id:2,name:"Kevin",age:21,friend:"Kevin"});
     db.users.insertOne({id:3,name:"Anyone",friend:"Anyone"});
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: init-mysql
-  namespace: kelon
-data:
-  Init-MySql.sql: "-- Adminer 4.7.3 MySQL dump\n\nSET NAMES utf8;\nSET time_zone
-  = '+00:00';\nSET foreign_key_checks = 0;\nSET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';\n\nDROP
-  DATABASE IF EXISTS `appstore`;\nCREATE DATABASE `appstore` /*!40100 DEFAULT
-  CHARACTER SET latin1 */;\nUSE `appstore`;\n\nDROP TABLE IF EXISTS `apps`;\nCREATE
-  TABLE `apps` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `name` varchar(255)
-  NOT NULL,\n  `stars` tinyint(3) unsigned zerofill NOT NULL,\n  PRIMARY KEY (`id`)\n)
-  ENGINE=InnoDB DEFAULT CHARSET=latin1;\n\nINSERT INTO `apps` (`id`, `name`, `stars`)
-  VALUES\n(1,\t'First App for everyone',\t001),\n(2,\t'Arnold\\'s App',\t003),\n(3,\t'Famous
-  App',\t005);\n\nDROP TABLE IF EXISTS `app_rights`;\nCREATE TABLE `app_rights`
-  (\n  `app_id` int(11) NOT NULL,\n  `user_id` int(11) NOT NULL,\n  `right` varchar(255)
-  NOT NULL,\n  KEY `app_id` (`app_id`),\n  KEY `user_id` (`user_id`),\n  CONSTRAINT
-  `app_rights_ibfk_1` FOREIGN KEY (`app_id`) REFERENCES `apps` (`id`),\n  CONSTRAINT
-  `app_rights_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)\n) ENGINE=InnoDB
-  DEFAULT CHARSET=latin1;\n\nINSERT INTO `app_rights` (`app_id`, `user_id`, `right`)
-  VALUES\n(2,\t1,\t'OWNER');\n\nDROP TABLE IF EXISTS `users`;\nCREATE TABLE `users`
-  (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `name` varchar(255) NOT NULL,\n
-  \ `age` tinyint(4) DEFAULT NULL,\n  `friend` varchar(255) NOT NULL,\n  PRIMARY
-  KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1;\n\nINSERT INTO `users` (`id`,
-  `name`, `age`, `friend`) VALUES\n(1,\t'Arnold',\t72,\t'John Connor'),\n(2,\t'Kevin',\t21,\t'Kevin'),\n(3,\t'Anyone',\tNULL,\t'Anyone');"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -245,7 +208,7 @@ data:
       mysql:
         type: mysql
         connection:
-          host: mysql
+          host: mysql.kelon.svc.cluster.local
           port: 3306
           database: appstore
           user: You
@@ -254,7 +217,7 @@ data:
       pg:
         type: postgres
         connection:
-          host: postgres-postgresql
+          host: postgres-postgresql.kelon.svc.cluster.local
           port: 5432
           database: appstore
           user: You
@@ -263,7 +226,7 @@ data:
       mongo:
         type: mongo
         connection:
-          host: mongo-mongodb
+          host: mongo-mongodb.kelon.svc.cluster.local
           port: 27017
           database: appstore
           user: You

@@ -48,13 +48,16 @@ subjects:
     apiGroup: rbac.authorization.k8s.io
 ---
 # Deploy OPA and kube-mgmt.
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kelon
   namespace: kelon
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: kelon
   template:
     metadata:
       labels:
@@ -64,6 +67,7 @@ spec:
         - name: kelon
           image: kelonio/kelon:latest
           args:
+            - "--port=8181"
             - "--opa-conf=/conf/opa.yml"
             - "--api-conf=/conf/api.yml"
             - "--datastore-conf=/conf/datastore.yml"
