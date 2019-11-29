@@ -19,6 +19,15 @@ kubectl apply -f ./manifests/appstore-deployment.yml
 kubectl apply -f ./manifests/kube-mgmt-deployment.yml
 ```
 
+# Test
+
+```bash
+# Forward UI from appstore to local machine
+kubectl -n appstore port-forward svc/appstore-service 8080
+````
+
+After the Web-UI of the appstore is forwarded to your local machine, you should be able to connect [here](http://localhost:8080/)
+
 # Shutdown
 ```bash
 kubectl delete namespace kelon

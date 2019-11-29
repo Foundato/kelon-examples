@@ -12,7 +12,7 @@ metadata:
   name: appstore-config
   namespace: appstore
 data:
-  JDBC_DATABASE_URL: "jdbc:postgresql://postgres-postgresql:5432/appstore"
+  JDBC_DATABASE_URL: "jdbc:postgresql://postgres-postgresql.appstore.svc.cluster.local:5432/appstore"
   JDBC_DATABASE_USERNAME: You
   JDBC_DATABASE_PASSWORD: SuperSecure
-  OPA_URL: "http://kelon:8181/v1/data/http/authz/allow"
+  OPA_URL: "http://kelon.kelon.svc.cluster.local:8181/v1/data/http/authz/allow"
