@@ -1,22 +1,22 @@
-# Deploy OPA and kube-mgmt.
+# Deploy Appstore-Backend
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: appstore
+  name: appstore-backend
   namespace: appstore
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: appstore
+      app: appstore-backend
   template:
     metadata:
       labels:
-        app: appstore
+        app: appstore-backend
     spec:
       containers:
-        - name: appstore
-          image: kelonio/spring-vue-appstore:latest
+        - name: appstore-backend
+          image: kelonio/spring-vue-appstore-backend:latest
           ports:
             - name: http
               containerPort: 8080
@@ -29,19 +29,81 @@ spec:
               cpu: "1000m"
           envFrom:
             - configMapRef:
-                name: appstore-config
+                name: appstore-backend-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
 ---
-# Add service that exposes OPA
+# Deploy Appstore-Frontend
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appstore-frontend
+  namespace: appstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appstore-frontend
+  template:
+    metadata:
+      labels:
+        app: appstore-frontend
+    spec:
+      containers:
+        - name: appstore-frontend
+          image: kelonio/spring-vue-appstore-frontend:latest
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+          envFrom:
+            - configMapRef:
+                name: appstore-frontend-config
+---
+# Add service that exposes Backend
 apiVersion: v1
 kind: Service
 metadata:
-  name: appstore-service
+  name: appstore-backend-service
   namespace: appstore
   labels:
-    name: appstore-service
+    name: appstore-backend-service
 spec:
   selector:
-    app: appstore
+    app: appstore-backend
   ports:
   - port: 8080
+    protocol: TCP
+---
+# Add service that exposes Frontend
+apiVersion: v1
+kind: Service
+metadata:
+  name: appstore-frontend-service
+  namespace: appstore
+  labels:
+    name: appstore-frontend-service
+spec:
+  selector:
+    app: appstore-frontend
+  ports:
+  - port: 80
     protocol: TCP

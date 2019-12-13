@@ -22,11 +22,13 @@ kubectl apply -f ./manifests/kube-mgmt-deployment.yml
 # Test
 
 ```bash
+# Forward backend from appstore to local machine
+kubectl -n appstore port-forward svc/appstore-backend-service 8080
 # Forward UI from appstore to local machine
-kubectl -n appstore port-forward svc/appstore-service 8080
+kubectl -n appstore port-forward svc/appstore-frontend-service 8081:80
 ````
 
-After the Web-UI of the appstore is forwarded to your local machine, you should be able to connect [here](http://localhost:8080/)
+After the Web-UI of the appstore is forwarded to your local machine, you should be able to connect [here](http://localhost:8081/)
 
 # Shutdown
 ```bash

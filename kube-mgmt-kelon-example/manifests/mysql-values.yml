@@ -30,7 +30,7 @@ mysqlPassword: SuperSecure
 
 ## Create a database
 ##
-mysqlDatabase: appstore
+#mysqlDatabase: appstore
 
 ## Specify an imagePullPolicy (Required)
 ## It's recommended to change this to 'Always' if the image tag is 'latest'
@@ -134,7 +134,7 @@ configurationFiles: {}
 
 # Custom mysql init SQL files used to initialize the database
 initializationFiles: 
-  init.sql: |-
+  appstore.sql: |
     "-- Adminer 4.7.3 MySQL dump\n\nSET NAMES utf8;\nSET time_zone
     = '+00:00';\nSET foreign_key_checks = 0;\nSET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';\n\nDROP
     DATABASE IF EXISTS `appstore`;\nCREATE DATABASE `appstore` /*!40100 DEFAULT

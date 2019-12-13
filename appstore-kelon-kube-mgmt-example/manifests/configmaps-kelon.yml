@@ -153,6 +153,11 @@ data:
       input.method == "POST"
       input.path = ["api", "login"]
     }
+
+    allow {
+      input.method == "OPTIONS"
+      input.path = ["api", "login"]
+    }
   web.rego: |-
     package web
 
