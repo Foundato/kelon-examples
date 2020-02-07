@@ -14,16 +14,6 @@ spec:
       labels:
         app: appstore-backend
     spec:
-      initContainers:
-        - name: proxy-init
-          image: openpolicyagent/proxy_init:v2
-          args: ["-p", "8000", "-u", "1111"]
-          securityContext:
-            capabilities:
-              add:
-              - NET_ADMIN
-            runAsNonRoot: false
-            runAsUser: 0
       containers:
         - name: appstore-backend
           image: kelonio/spring-vue-appstore-backend:latest
@@ -40,33 +30,20 @@ spec:
           envFrom:
             - configMapRef:
                 name: appstore-backend-config
-        - name: envoy
-          image: envoyproxy/envoy:v1.10.0
-          securityContext:
-            runAsUser: 1111
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "250m"
-            limits:
-              memory: "512Mi"
-              cpu: "1000m"
-          securityContext:
-            runAsUser: 1111
-          volumeMounts:
-          - readOnly: true
-            mountPath: /config
-            name: proxy-config
-          args:
-          - "envoy"
-          - "--config-path"
-          - "/config/envoy.yaml"
-          - "-l"
-          - "debug"
-      volumes:
-        - name: proxy-config
-          configMap:
-            name: proxy-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
 ---
 # Deploy Appstore-Frontend
 apiVersion: apps/v1

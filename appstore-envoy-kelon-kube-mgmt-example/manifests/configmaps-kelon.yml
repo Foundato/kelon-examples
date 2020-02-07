@@ -71,6 +71,9 @@ data:
           # Security for apps
           - path: /api/apps.*
             package: applications
+          # Security for tags
+          - path: /api/tags.*
+            package: tags
           - path: /api/users/\d+/apps/\d+
             package: applications
   datastore.yml: |-
@@ -155,10 +158,6 @@ data:
       input.path = ["api", "login"]
     }
 
-    allow {
-      input.method == "OPTIONS"
-      input.path = ["api", "login"]
-    }
   web.rego: |-
     package web
 
@@ -210,4 +209,32 @@ data:
         data.pg.app[app].user_id = user.id
         app.id = appId
         user.id = userId
+    }
+  tags.rego: |-
+    package tags
+
+    import data.global
+    import input.method
+
+    # Inherit from global
+    allow = global.allow
+
+    # Get all tags is always allowed
+    allow {
+      input.method == "GET"
+      input.path = ["api", "tags"]
+    }
+  users.rego: |-
+    package users
+
+    import data.global
+    import input.method
+
+    # Inherit from global
+    allow = global.allow
+
+    # Get all tags is always allowed
+    allow {
+      input.method == "POST"
+      input.path = ["api", "users"]
     }

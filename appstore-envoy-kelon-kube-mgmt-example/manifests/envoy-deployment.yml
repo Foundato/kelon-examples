@@ -1,0 +1,59 @@
+# Deploy Envoy-Proxy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy-proxy
+  namespace: appstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: envoy-proxy
+  template:
+    metadata:
+      labels:
+        app: envoy-proxy
+    spec:
+      containers:
+        - name: envoy
+          image: envoyproxy/envoy:v1.13.0
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+          volumeMounts:
+          - readOnly: true
+            mountPath: /config
+            name: envoy-config
+          args:
+          - "envoy"
+          - "--config-path"
+          - "/config/envoy.yaml"
+          - "-l"
+          - "debug"
+      volumes:
+        - name: envoy-config
+          configMap:
+            name: envoy-config
+---
+# Add service that exposes envoy
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy-proxy-service
+  namespace: appstore
+  labels:
+    name: envoy-proxy-service
+spec:
+  selector:
+    app: envoy-proxy
+  ports:
+  - port: 8001
+    name: admin-port
+    protocol: TCP
+  - port: 8000
+    name: traffic-port
+    protocol: TCP
