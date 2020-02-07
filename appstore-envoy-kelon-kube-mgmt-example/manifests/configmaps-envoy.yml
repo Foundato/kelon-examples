@@ -32,9 +32,9 @@ data:
                             - "*"
                           cors:
                             allow_origin_string_match:
-                            - safe_regex:
-                                google_re2: {}
-                                regex: \*
+                              - safe_regex:
+                                  google_re2: {}
+                                  regex: \*
                             allow_methods: "*"
                             allow_headers: "*"
                             filter_enabled:
@@ -55,6 +55,26 @@ data:
                     http_filters:
                       - name: envoy.cors
                         typed_config: {}
+                      - name: envoy.filters.http.jwt_authn
+                        config:
+                          providers:
+                            provider1:
+                              issuer: ""
+                              remote_jwks:
+                                http_uri:
+                                  uri: ""
+                                  cluster: service
+                                  timeout:
+                                    seconds: 5
+                          rules:
+                            - match:
+                                prefix: /actuator/health
+                            - match:
+                                prefix: /api/login
+                            - match:
+                                prefix: /api/apps
+                              requires:
+                                provider_name: provider1
                       - name: envoy.ext_authz
                         config:
                           with_request_body:
