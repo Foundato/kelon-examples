@@ -60,8 +60,6 @@ data:
                           providers:
                             provider1:
                               issuer: "https://dev-kelon.eu.auth0.com/"
-                              #local_jwks:
-                              #  inline_string: '{"keys":[{"alg":"RS256","kty":"RSA","use":"sig","n":"v-ArEf2T0bg9M1002MPAf4mfUtG4_34Mc3dtPIZpzL81U-WEGDTtmrqp3iHbnLd3zfynwDTK8pygjLz8xRFsaYr-TYkri4dzUKz5c45P0tmv88I-qGOdRIhxL8It4XDdQV_fsGrskMLl9j9DLpU5Yfg9nm6pyIkqcDQglILubBXNkzk_JJpucoaF7GwRGZ79f9U1B2jsUIWqmXmtGOoQLyZWF3RcBibdFF6jhsHVKtxvZalhugd-wzZkLLlfNff-7f4NEumWCZn4dVh4vGAuzEDhstcCqJtRWHt6P-KQFVX-OAebwqvxdCa-6Oqsd39SrO28iTykmT-zawiCB3kDhw","e":"AQAB","kid":"QzlENUJFMERCMkMzRjBGOTQyMEE2MkREMTdGRjBDMUYzQkQxNEQ3Nw","x5t":"QzlENUJFMERCMkMzRjBGOTQyMEE2MkREMTdGRjBDMUYzQkQxNEQ3Nw","x5c":["MIIDBzCCAe+gAwIBAgIJe8NsUUuwcUTyMA0GCSqGSIb3DQEBCwUAMCExHzAdBgNVBAMTFmRldi1rZWxvbi5ldS5hdXRoMC5jb20wHhcNMjAwMjA3MTQyMDE2WhcNMzMxMDE2MTQyMDE2WjAhMR8wHQYDVQQDExZkZXYta2Vsb24uZXUuYXV0aDAuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv+ArEf2T0bg9M1002MPAf4mfUtG4/34Mc3dtPIZpzL81U+WEGDTtmrqp3iHbnLd3zfynwDTK8pygjLz8xRFsaYr+TYkri4dzUKz5c45P0tmv88I+qGOdRIhxL8It4XDdQV/fsGrskMLl9j9DLpU5Yfg9nm6pyIkqcDQglILubBXNkzk/JJpucoaF7GwRGZ79f9U1B2jsUIWqmXmtGOoQLyZWF3RcBibdFF6jhsHVKtxvZalhugd+wzZkLLlfNff+7f4NEumWCZn4dVh4vGAuzEDhstcCqJtRWHt6P+KQFVX+OAebwqvxdCa+6Oqsd39SrO28iTykmT+zawiCB3kDhwIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTUXNEacZNN51feJ6DPeoesHVGGoDAOBgNVHQ8BAf8EBAMCAoQwDQYJKoZIhvcNAQELBQADggEBAKnDhtzPUC4+yf7TXWKPEbnDawmwnzlMhha8964zNgS9Cb9RmmTdxPYJCMwA//NHDGQcPs6W31Noy52QFmEBuwt1hsJGQRF9/sAv0xFKA6++2etEbVFd0l49jiH5X3yXdA8XV95GV3rDUYXxKJYMZTaJccN28zs9uqdkPIqt0/Bx/HvwPZO6kHwT2Vhn+JuN8NBSCYtV5kbJBtx3shQzvs5OBoiHDvlG/UpMyb9yHZBQD6mlCIzYAf6EpI5TmY9GC44vMpIChtIqQDGpij9nY9NCcztuRWYchv7OVy9L1ri+GoV4bBRR1d1ODSxmHOnXDr8zmfcIG5b2KrxMhm2JCk4="]}]}'
                               remote_jwks:
                                 http_uri:
                                   uri: "https://dev-kelon.eu.auth0.com/.well-known/jwks.json"
@@ -117,3 +115,12 @@ data:
                         socket_address:
                           address: dev-kelon.eu.auth0.com
                           port_value: 443
+          transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.api.v2.auth.UpstreamTlsContext
+              common_tls_context:
+                validation_context:
+                  trusted_ca:
+                    filename: "/etc/ssl/certs/ca-certificates.crt"
+              sni: dev-kelon.eu.auth0.com

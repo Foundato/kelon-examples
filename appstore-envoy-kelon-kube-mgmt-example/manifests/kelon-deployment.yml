@@ -74,6 +74,9 @@ spec:
             - "--rego-dir=/policies"
             - "--config-watcher-path=/policies"
             - "--envoy-port=9191"
+            - "--telemetry-service=applicationinsights"
+            - "--instrumentation-key=ae6aa5ed-b2d4-4368-a5d2-5dc28c9a696d"
+            - "--application-insights-service-name=Kelon-k8s"
           ports:
             - name: http
               containerPort: 8181

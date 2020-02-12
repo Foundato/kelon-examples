@@ -88,6 +88,9 @@ data:
           user: You
           password: SuperSecure
           sslmode: disable
+        metadata:
+          telemetryName: Datasource
+          telemetryType: PostgreSQL
 
     # Entity-Schemas define the structure of the entities of one schema inside a datastore
     entity_schemas:
@@ -176,6 +179,9 @@ data:
     allow {
       input.method == "GET"
       input.path = ["api", "apps"]
+      
+      # Just to have a dummy acces to database 
+      data.pg.users[_].name = "swa_student"
     }
 
     # Get details about an app is always allowed
